@@ -14,7 +14,7 @@ WORKDIR /app
 
 COPY --from=builder /app/target/monitoringapi-0.0.1-SNAPSHOT.jar /app
 
-EXPOSE 8080
+EXPOSE 2026
 
 ENV JAVA_OPTS="-Xms200m -Xmx2g -XX:+UseG1GC"
 
