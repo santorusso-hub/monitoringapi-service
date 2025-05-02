@@ -1,21 +1,11 @@
-FROM artifacts.it.bancobai.ao/eclipse-temurin:21.0.2_13-jdk-alpine AS builder
-
+# Etapa 1: build com Maven e Java 21
+FROM maven:3.9.6-eclipse-temurin-21 AS builder
 WORKDIR /app
-
 COPY . .
+RUN mvn clean package -DskipTests
 
-RUN chmod +x ./mvnw
-
-RUN ./mvnw clean install package
-
-FROM artifacts.it.bancobai.ao/eclipse-temurin:21.0.2_13-jre-alpine
-
+# Etapa 2: imagem leve com JDK 21
+FROM eclipse-temurin:21-jdk-alpine
 WORKDIR /app
-
-COPY --from=builder /app/target/monitoringapi-0.0.1-SNAPSHOT.jar /app
-
-EXPOSE 2026
-
-ENV JAVA_OPTS="-Xms200m -Xmx2g -XX:+UseG1GC"
-
-CMD ["sh", "-c", "java $JAVA_OPTS -jar monitoringapi-0.0.1-SNAPSHOT.jar"]
+COPY --from=builder /app/target/*.jar monitoringapi-0.0.1-SNAPSHOT.jar
+ENTRYPOINT ["java", "-jar", "monitoringapi-0.0.1-SNAPSHOT.jar"]
